@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iPhone</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+body{display:grid;place-items:center;min-height:100vh;background:#0a0a0a}
+#phone{position:relative;width:390px;height:844px;background:#f2f2f3;border-radius:46px;
+  overflow:hidden;box-shadow:0 0 0 11px #1c1c1e,0 25px 70px rgba(0,0,0,.7)}
+
+/* ---------- 锁屏 ---------- */
+#lock{position:absolute;inset:0;background:#000;color:#fff;z-index:30;display:flex;
+  flex-direction:column;align-items:center;padding:78px 0 34px;
+  transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s}
+#lock.hide{transform:translateY(-100%);opacity:0;visibility:hidden;pointer-events:none}
+.ltime{font-size:76px;font-weight:200;letter-spacing:-3px;line-height:1}
+.ldate{font-size:15px;color:#b8b8b8;margin-top:8px}
+.lw{font-size:13px;color:#8a8a8a;margin-top:20px;letter-spacing:.5px}
+.dots{display:flex;gap:22px;margin:58px 0 auto}
+.dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid #5c5c5c;transition:.15s}
+.dots i.on{background:#fff;border-color:#fff}
+@keyframes sh{10%,90%{transform:translateX(-6px)}20%,80%{transform:translateX(7px)}
+ 30%,50%,70%{transform:translateX(-9px)}40%,60%{transform:translateX(9px)}}
+.shake{animation:sh .42s}
+.pad{display:grid;grid-template-columns:repeat(3,74px);gap:20px;justify-content:center}
+.pad button{width:74px;height:74px;border-radius:50%;border:none;background:#1c1c1c;
+  color:#fff;font-size:29px;font-weight:300;cursor:pointer}
+.pad button:active{background:#3a3a3a}
+.pad .empty{background:transparent;pointer-events:none}
+.pad .del{background:transparent;font-size:22px;color:#9a9a9a}
+
+/* ---------- 桌面 ---------- */
+#home{position:absolute;inset:0;display:flex;flex-direction:column;background:#f2f2f3;z-index:20}
+.hs{flex:1;overflow-y:auto;padding:52px 18px 0}
+.widgets{display:flex;gap:12px}
+.wg{flex:1;background:#fff;border-radius:20px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.wt{font-size:30px;font-weight:600;letter-spacing:-1.5px}
+.wd{font-size:11px;color:#8a8a8a;margin-top:3px}
+.ww{font-size:11px;color:#555;margin-top:12px}
+.wg2{display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.wg2 svg{width:26px;height:26px;color:#111}
+.wg2 b{font-size:14px;margin-top:8px}
+.wg2 p{font-size:11px;color:#999;margin-top:2px}
+.bars{display:flex;gap:3px;align-items:flex-end;height:14px;margin-top:8px}
+.bars i{width:3px;background:#111;border-radius:2px;animation:eq 1s infinite ease-in-out}
+.bars i:nth-child(1){height:8px;animation-delay:0s}
+.bars i:nth-child(2){height:14px;animation-delay:.2s}
+.bars i:nth-child(3){height:6px;animation-delay:.4s}
+@keyframes eq{50%{transform:scaleY(.4)}}
+.search{display:flex;align-items:center;gap:7px;background:#fff;border-radius:14px;
+  padding:10px 13px;margin:14px 0 18px;color:#9a9a9a;font-size:14px}
+.search svg{width:16px;height:16px;color:#9a9a9a}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 4px}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.app .ic{width:56px;height:56px;border-radius:16px;background:#fff;display:grid;
+  place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.app svg{width:27px;height:27px;color:#111}
+.app span{font-size:11px;color:#333}
+.dock{margin:0 14px 22px;background:rgba(255,255,255,.8);backdrop-filter:blur(20px);
+  border-radius:28px;padding:12px 0;display:grid;grid-template-columns:repeat(4,1fr)}
+
+/* ---------- 应用层 ---------- */
+#screen{position:absolute;inset:0;background:#fff;z-index:25;overflow-y:auto;display:none}
+#screen.on{display:block}
+.bar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
+  padding:50px 16px 12px;background:#fff;z-index:5;border-bottom:1px solid #f0f0f0}
+.bar b{font-size:16px}
+.bk{width:26px;height:26px;display:grid;place-items:center;cursor:pointer}
+.bk svg{width:19px;height:19px;color:#111}
+.list .row{display:flex;gap:12px;align-items:center;padding:12px 16px;
+  border-bottom:1px solid #f5f5f5;cursor:pointer}
+.av{width:46px;height:46px;border-radius:13px;background:#111;color:#fff;display:grid;
+  place-items:center;font-size:16px;flex:none}
+.rb{flex:1;min-width:0}
+.rb b{font-size:15px;font-weight:500;display:block}
+.rb p{font-size:12px;color:#999;margin-top:3px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.tm{font-size:13px;color:#999;flex:none}
+.tm.up{color:#111;font-weight:600}
+.ch{color:#c8c8c8;font-size:18px}
+.chat{padding:14px 16px 40px;display:flex;flex-direction:column;gap:10px}
+.bub{max-width:74%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.5}
+.bub.them{background:#f2f2f3;color:#111;align-self:flex-start}
+.bub.me{background:#111;color:#fff;align-self:flex-end}
+.nm{display:block;font-size:11px;color:#8a8a8a;margin-bottom:3px}
+.segs{display:flex;gap:22px;padding:12px 18px;border-bottom:1px solid #f0f0f0;
+  overflow-x:auto;white-space:nowrap}
+.segs::-webkit-scrollbar{display:none}
+.segs span{font-size:14px;color:#9a9a9a;cursor:pointer;position:relative;flex:none}
+.segs span.on{color:#111;font-weight:600}
+.segs span.on::after{content:'';position:absolute;left:50%;transform:translateX(-50%);
+  bottom:-7px;width:18px;height:2px;background:#111;border-radius:2px}
+.p16{padding:16px}
+.post{padding:14px 16px;border-bottom:1px solid #f5f5f5}
+.ph{height:130px;border-radius:14px;background:linear-gradient(135deg,#ececec,#8e8e8e);
+  margin-bottom:9px}
+.post:nth-child(2n) .ph{background:linear-gradient(135deg,#dedede,#6e6e6e)}
+.post:nth-child(3n) .ph{background:linear-gradient(135deg,#f2f2f2,#a8a8a8)}
+.post b{font-size:14px;font-weight:500}
+.meta{font-size:11px;color:#9a9a9a;margin-top:4px}
+.prof{padding:20px 16px;display:flex;align-items:center;gap:14px}
+.pav{width:60px;height:60px;border-radius:50%;background:#111;color:#fff;display:grid;
+  place-items:center;font-size:22px}
+.prof b{font-size:17px}
+.prof p{font-size:12px;color:#999;margin-top:3px}
+.mhero{margin:16px;padding:18px;border-radius:18px;background:#111;color:#fff;
+  display:flex;gap:14px;align-items:center}
+.cov{width:52px;height:52px;border-radius:14px;background:#2a2a2a;display:grid;
+  place-items:center;font-size:22px}
+.mhero b{font-size:16px}
+.mhero p{font-size:12px;color:#9a9a9a;margin-top:3px}
+.grow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f5f5f5}
+.gimg{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#eee,#8a8a8a);flex:none}
+.buy{border:none;background:#111;color:#fff;border-radius:16px;padding:7px 14px;
+  font-size:12px;cursor:pointer}
+.bal{background:#111;color:#fff;border-radius:18px;padding:20px}
+.bal p{font-size:12px;color:#9a9a9a}
+.bal b{display:block;font-size:30px;font-weight:600;margin:6px 0 4px;letter-spacing:-1px}
+.bal span{font-size:11px;color:#7a7a7a}
+.sec{padding:18px 16px 8px;font-size:12px;color:#9a9a9a}
+.note{font-size:14px;line-height:1.9;color:#222}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px}
+.ph2{aspect-ratio:1;border-radius:6px;cursor:pointer}
+.big{height:420px;margin:0;border-radius:0}
+.cap{text-align:center;font-size:13px;color:#666;padding:16px}
+</style>
+</head>
+<body>
+<div id="phone">
+
+  <!-- 桌面 -->
+  <div id="home">
+    <div class="hs">
+      <div class="widgets">
+        <div class="wg">
+          <div class="wt">09:01</div>
+          <div class="wd">10月4日 星期日</div>
+          <div class="ww">⛅ 光启 · 12°C · 多云</div>
+        </div>
+        <div class="wg wg2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>
+          </svg>
+          <b>我爱你</b>
+          <p>正在播放</p>
+          <div class="bars"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg>
+        <span>搜索</span>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="dock" id="dock"></div>
+  </div>
+
+  <!-- 应用层 -->
+  <div id="screen"></div>
+
+  <!-- 锁屏 -->
+  <div id="lock">
+    <div class="ltime">09:01</div>
+    <div class="ldate">10月4日 星期日</div>
+    <div class="lw">⛅ 光启 · 12°C · 多云</div>
+    <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
+    <div class="pad" id="pad"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============ 图标 ============ */
+const svg=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC={
+ wechat:'<path d="M3 5h13v9H8l-5 4z"/><path d="M18 8h3v8l-3 3"/>',
+ xhs:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/>',
+ douyin:'<path d="M13 4v11a4 4 0 1 1-3-3.9"/><path d="M13 4c0 3 2 5 5 5"/>',
+ shop:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+ wallet:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h3"/>',
+ music:'<path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>',
+ note:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ photo:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',
+ set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>'
+};
+
+/* ============ 锁屏 ============ */
+const PWD='0103'; let inp='';
+const dots=document.getElementById('dots'), pad=document.getElementById('pad');
+pad.innerHTML=['1','2','3','4','5','6','7','8','9','','0','⌫']
+ .map(k=>k===''?'<button class="empty"></button>':
+   `<button onclick="${k==='⌫'?'del()':`key('${k}')`}">${k}</button>`).join('');
+function draw(){[...dots.children].forEach((d,i)=>d.className=i<inp.length?'on':'')}
+function key(d){if(inp.length>=4)return;inp+=d;draw();if(inp.length===4)setTimeout(check,160)}
+function del(){inp=inp.slice(0,-1);draw()}
+function check(){
+  if(inp===PWD){document.getElementById('lock').classList.add('hide')}
+  else{dots.classList.add('shake');
+    setTimeout(()=>{dots.classList.remove('shake');inp='';draw()},430)}
+}
+
+/* ============ 数据 ============ */
+const WX=[
+ {n:'齊',av:'齊',m:[
+  ['them','醒了吗？昨天不是还嚷嚷着要吃煎饼果子？给你买了，还有什么想吃的吗？'],
+  ['me','要辣椒！别的不吃了。谢谢我最爱的狐狐'],
+  ['them','油嘴滑舌……'],
+  ['me','爱狐狐~'],
+  ['them','爱笨鸟'],
+  ['them','~']]},
+ {n:'岐舌',av:'王',m:[
+  ['them','啊啊啊啊！禁止大早上秀恩爱！！！'],
+  ['me','？我秀啥了？？？我好懵逼啊'],
+  ['them','自己去问老齐！可恨的家伙！']]},
+ {n:'相亲相爱的一家',av:'群',m:[
+  ['them','老齐，你有完没完了！','岐舌'],
+  ['me','？咋了'],
+  ['them','妹子你快管管他！把我的零食全都没收了！','岐舌'],
+  ['them','也不知道是谁笨的还能吃零食咬到舌头','齊'],
+  ['them','意外！我那是意外！而且我已经好了！','岐舌'],
+  ['them','笨鸟，你呢','齊'],
+  ['me','啊哈哈，我觉得还是少吃点零食比较好，不上火'],
+  ['them','可恨！','岐舌']]}
+];
+const XF=[['一个人的深夜食堂｜番茄牛腩面','1.2万赞'],['猫主子今日份的睡姿','8634赞']];
+const XW=[['我的黑白厨房','1.2万'],['我和家里三两事','5523']];
+const XV=[['烤冷面教程'],['猫咪掉毛怎么办'],['男朋友送什么礼物合适']];
+const DY=[['3分钟快手早餐','@厨房日记','12.4w'],['布偶猫的日常','@猫猫频道','8.7w'],
+ ['讨厌情侣的第一百万年','@小小舌','5.2w']];
+const DYW=[['我的黑白厨房','1.2w'],['我和家里三两事','3421']];
+const DYV=[['天秤座和处女座绝配吗'],['怎么才能不成为妻管严？'],['离家出走不被老婆骂的几率有多大']];
+const GOODS={
+ '日用品':[['电动牙刷','¥399'],['有机蔬菜礼盒','¥128'],['香薰蜡烛','¥89']],
+ '出行':[['光启→深圳 头等舱','¥2680'],['光启→北京 高铁票','¥538'],['国家公园门票','¥120']],
+ '数码':[['智能手机','¥9999'],['降噪耳机','¥1899'],['平板电脑','¥4299']]
+};
+const ORDERS=[['电动牙刷','¥399','已签收','10-01'],['降噪耳机','¥1899','已签收','09-28'],
+ ['香薰蜡烛','¥89','运输中','10-03']];
+const ASSETS=[['公司持股','¥18,000,000'],['海外账户','¥4,200,000'],
+ ['不动产','¥5,600,000'],['流动资金','¥850,000']];
+const FLOWS=[['工资入账','+¥120,000','10-01'],['商城消费','-¥1,899','10-02'],
+ ['音乐会员','-¥15','10-02'],['情侣外套','-¥638','09-28'],['猫粮','-¥368','09-26']];
+const SONGS=[['我爱你','齐司礼的歌单','3:42'],['空白格','蔡健雅','4:20'],
+ ['慢冷','梁静茹','4:15'],['我们的歌','王力宏','4:10'],['疑心病','任然','3:55']];
+const NOTES=[
+ {t:'关于阿礼',c:'阿礼今天多夸了我好几句，因为我多吃了一碗饭，他很开心。——10月4日'},
+ {t:'阿礼让买的东西',c:'鸡蛋、牛奶、番茄、牛腩、意面、猫粮'},
+ {t:'下周计划',c:'和阿礼一起去大理，一起拍很多照片发朋友圈'}];
+const PHOTOS=[['厨房的早晨','linear-gradient(135deg,#eaeaea,#8a8a8a)'],
+ ['简笔画','linear-gradient(135deg,#f8f8f8,#c0c0c0)'],
+ ['猫','linear-gradient(135deg,#f5f5f5,#bdbdbd)']];
+const SETITEMS=[
+ {n:'账号与安全',c:'已登录 aiqsl@icloud.com<br>双重认证：已开启'},
+ {n:'锁屏密码',c:'密码：0103<br>自动锁定：1 分钟'},
+ {n:'关于本机',c:'iPhone 17<br>型号：A3104<br>容量：512GB<br>系统：iOS 18.0'},
+ {n:'设备名称',c:'礼一个的 iPhone'}];
+
+/* ============ 导航 ============ */
+const scr=document.getElementById('screen'); let navStack=[];
+function set(h){scr.innerHTML=h;scr.scrollTop=0}
+function go(h){navStack.push(scr.innerHTML);set(h)}
+function back(){navStack.length?set(navStack.pop()):(scr.classList.remove('on'),navStack=[])}
+function bar(t){return `<div class="bar"><span class="bk" onclick="back()">${svg(IC.back)}</span><b>${t}</b><span style="width:26px"></span></div>`}
+function openApp(k){navStack=[];scr.classList.add('on');set(ROOTS[k]())}
+
+/* ============ 各应用 ============ */
+const ROOTS={};
+
+ROOTS.wechat=()=>bar('微信')+'<div class="list">'+WX.map((c,i)=>
+ `<div class="row" onclick="chat(${i})"><div class="av">${c.av}</div>
+  <div class="rb"><b>${c.n}</b><p>${c.m[c.m.length-1][2]?c.m[c.m.length-1][2]+'：':''}${c.m[c.m.length-1][1]}</p></div></div>`).join('')+'</div>';
+function chat(i){const c=WX[i];
+ go(bar(c.n)+'<div class="chat">'+c.m.map(m=>
+  `<div class="bub ${m[0]}">${m[2]?`<span class="nm">${m[2]}</span>`:''}${m[1]}</div>`).join('')+'</div>')}
+
+let xTab='find',xSub='work';
+ROOTS.xhs=()=>{
+ const seg=`<div class="segs">
+  <span class="${xTab==='find'?'on':''}" onclick="xTab='find';set(ROOTS.xhs())">发现</span>
+  <span class="${xTab==='me'?'on':''}" onclick="xTab='me';set(ROOTS.xhs())">我的</span></div>`;
+ if(xTab==='find')return bar('小红书')+seg+'<div>'+
+  XF.map(p=>`<div class="post"><div class="ph"></div><b>${p[0]}</b><p class="meta">${p[1]}</p></div>`).join('')+'</div>';
+ const sub=`<div class="segs">
+  <span class="${xSub==='work'?'on':''}" onclick="xSub='work';set(ROOTS.xhs())">作品</span>
+  <span class="${xSub==='view'?'on':''}" onclick="xSub='view';set(ROOTS.xhs())">浏览</span></div>`;
+ const body=xSub==='work'
+  ?XW.map(p=>`<div class="post"><div class="ph"></div><b>${p[0]}</b><p class="meta">${p[1]} 赞</p></div>`).join('')
+  :XV.map(p=>`<div class="row"><div class="rb"><b>${p[0]}</b><p>浏览过</p></div></div>`).join('');
+ return bar('小红书')+seg+
+  `<div class="prof"><div class="pav">礼</div><div><b>aiqsl17-</b><p>小红书号：aijqsl_0103</p></div></div>`
+  +sub+body;
+};
+
+let dTab='rec';
+ROOTS.douyin=()=>{
+ const seg=`<div class="segs">
+  <span class="${dTab==='rec'?'on':''}" onclick="dTab='rec';set(ROOTS.douyin())">推荐</span>
+  <span class="${dTab==='me'?'on':''}" onclick="dTab='me';set(ROOTS.douyin())">我的</span></div>`;
+ if(dTab==='rec')return bar('抖音')+seg+DY.map(v=>
+  `<div class="post"><div class="ph"></div><b>${v[0]}</b><p class="meta">${v[1]} · ${v[2]}</p></div>`).join('');
+ return bar('抖音')+seg+
+  `<div class="prof"><div class="pav">礼</div><div><b>aiqsl17-</b><p>抖音号：aijqsl_0103</p></div></div>
+   <div class="segs"><span class="on">作品</span><span>浏览</span></div>`+
+  DYW.map(v=>`<div class="post"><div class="ph"></div><b>${v[0]}</b><p class="meta">${v[1]} 赞</p></div>`).join('')+
+  DYV.map(v=>`<div class="row"><div class="rb"><b>${v[0]}</b><p>浏览过</p></div></div>`).join('');
+};
+
+let sCat='日用品';
+ROOTS.shop=()=>bar('商城')+
+ `<div class="segs">${Object.keys(GOODS).map(c=>
+   `<span class="${c===sCat?'on':''}" onclick="sCat='${c}';set(ROOTS.shop())">${c}</span>`).join('')}</div>`+
+ `<div class="p16">${GOODS[sCat].map(g=>
+   `<div class="grow"><div class="gimg"></div><div class="rb"><b>${g[0]}</b><p>${g[1]}</p></div>
+    <button class="buy">购买</button></div>`).join('')}</div>`+
+ `<div class="row" onclick="go(orders())"><div class="rb"><b>购买记录</b></div><span class="ch">›</span></div>`;
+function orders(){return bar('购买记录')+ORDERS.map(o=>
+ `<div class="row"><div class="rb"><b>${o[0]}</b><p>${o[3]} · ${o[2]}</p></div><span class="tm">${o[1]}</span></div>`).join('')}
+
+ROOTS.wallet=()=>bar('钱包')+
+ `<div class="p16"><div class="bal"><p>总资产（元）</p><b>¥28,650,000</b><span>较上月 +2.4%</span></div></div>`+
+ `<div class="sec">资产构成</div>`+ASSETS.map(a=>
+  `<div class="row"><div class="rb"><b>${a[0]}</b></div><span class="tm">${a[1]}</span></div>`).join('')+
+ `<div class="sec">流水记录</div>`+FLOWS.map(f=>
+  `<div class="row"><div class="rb"><b>${f[0]}</b><p>${f[2]}</p></div>
+   <span class="tm ${f[1][0]==='+'?'up':''}">${f[1]}</span></div>`).join('');
+
+ROOTS.music=()=>bar('音乐')+
+ `<div class="mhero"><div class="cov">♪</div><div><b>我爱你</b><p>齐司礼的歌单 · 5 首</p></div></div>`+
+ SONGS.map(s=>`<div class="row"><div class="av">♪</div>
+  <div class="rb"><b>${s[0]}</b><p>${s[1]}</p></div><span class="tm">${s[2]}</span></div>`).join('');
+
+ROOTS.note=()=>bar('备忘录')+NOTES.map((n,i)=>
+ `<div class="row" onclick="openNote(${i})"><div class="rb"><b>${n.t}</b>
+  <p>${n.c.split('。')[0]}。</p></div></div>`).join('');
+function openNote(i){go(bar(NOTES[i].t)+`<div class="p16 note">${NOTES[i].c}</div>`)}
+
+ROOTS.photo=()=>bar('相册')+`<div class="pgrid">${PHOTOS.map((p,i)=>
+ `<div class="ph2" style="background:${p[1]}" onclick="viewPhoto(${i})"></div>`).join('')}</div>`;
+function viewPhoto(i){go(bar(PHOTOS[i][0])+
+ `<div class="big" style="background:${PHOTOS[i][1]}"></div><p class="cap">${PHOTOS[i][0]}</p>`)}
+
+ROOTS.set=()=>bar('设置')+SETITEMS.map((s,i)=>
+ `<div class="row" onclick="openSet(${i})"><div class="rb"><b>${s.n}</b></div>
+  <span class="ch">›</span></div>`).join('');
+function openSet(i){go(bar(SETITEMS[i].n)+`<div class="p16 note">${SETITEMS[i].c}</div>`)}
+
+/* ============ 桌面渲染 ============ */
+const APPS=[['wechat','微信'],['xhs','小红书'],['douyin','抖音'],['shop','商城'],
+ ['wallet','钱包'],['music','音乐'],['note','备忘录'],['photo','相册'],['set','设置']];
+document.getElementById('grid').innerHTML=APPS.map(([k,n])=>
+ `<div class="app" onclick="openApp('${k}')"><div class="ic">${svg(IC[k])}</div><span>${n}</span></div>`).join('');
+document.getElementById('dock').innerHTML=['wechat','xhs','douyin','photo'].map(k=>
+ `<div class="app" onclick="openApp('${k}')"><div class="ic">${svg(IC[k])}</div></div>`).join('');
+</script>
+</body>
+</html>
